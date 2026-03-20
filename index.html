@@ -92,6 +92,7 @@
         .cell { width: 20px; height: 20px; background: var(--win-grey); border: 2px solid; border-color: var(--win-white) var(--win-dark) var(--win-dark) var(--win-white); display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: default; user-select: none; }
         .cell.revealed { border: 1px solid var(--win-dark); background: #bdbdbd; border-color: var(--win-dark); }
         .cell.mine { background: red; }
+        .cell.flagged::after { content: '🚩'; font-size: 10px; }
     </style>
 </head>
 <body onclick="hideStartMenu(); hideVolume()">
@@ -103,7 +104,7 @@
     <div class="icon" onclick="openApp('ie', 'Internet Explorer', 'https://win98icons.alexmeub.com/icons/png/msie1-2.png')"><img src="https://win98icons.alexmeub.com/icons/png/msie1-2.png"> Internet Explorer</div>
     <div class="icon" onclick="openApp('notepad', 'Notepad', 'https://win98icons.alexmeub.com/icons/png/notepad-0.png')"><img src="https://win98icons.alexmeub.com/icons/png/notepad-0.png"> Notepad</div>
     <div class="icon" onclick="openApp('calc', 'Calculator', 'https://win98icons.alexmeub.com/icons/png/calculator-0.png')"><img src="https://win98icons.alexmeub.com/icons/png/calculator-0.png"> Calculator</div>
-    <div class="icon" onclick="openApp('mines', 'Minesweeper', 'https://win98icons.alexmeub.com/icons/png/minesweeper_installed-0.png')"><img src="https://win98icons.alexmeub.com/icons/png/minesweeper_installed-0.png"> Minesweeper</div>
+    <div class="icon" onclick="openApp('mines', 'Minesweeper', 'https://api.nuget.org/v3-flatcontainer/minesweeperlibrary/1.0.5/icon')"><img src="https://api.nuget.org/v3-flatcontainer/minesweeperlibrary/1.0.5/icon"> Minesweeper</div>
     <div class="icon" onclick="openApp('music', '95 Music', 'https://win98icons.alexmeub.com/icons/png/cd_audio_cd-4.png')"><img src="https://images.dwncdn.net/images/t_app-icon-l/p/6598e7df-7cd1-4163-8d6f-69d8d8978cbd/3589763149/2141_4-78370130-imgingest-4910938650338722334.png"> 95 Music</div>
 </div>
 
@@ -114,17 +115,21 @@
             <span><img src="https://win98icons.alexmeub.com/icons/png/msie1-2.png" width="16"> Internet Explorer</span>
             <span class="pin-action" onclick="pinApp(event, 'ie', 'https://win98icons.alexmeub.com/icons/png/msie1-2.png', 'Internet Explorer')">Pin</span>
         </div>
+        <div class="menu-item" onclick="openApp('mines', 'Minesweeper', 'https://api.nuget.org/v3-flatcontainer/minesweeperlibrary/1.0.5/icon')">
+            <span><img src="https://api.nuget.org/v3-flatcontainer/minesweeperlibrary/1.0.5/icon" width="16"> Minesweeper</span>
+            <span class="pin-action" onclick="pinApp(event, 'mines', 'https://api.nuget.org/v3-flatcontainer/minesweeperlibrary/1.0.5/icon', 'Minesweeper')">Pin</span>
+        </div>
         <div class="menu-item" onclick="openApp('music', '95 Music', 'https://win98icons.alexmeub.com/icons/png/cd_audio_cd-4.png')">
             <span><img src="https://win98icons.alexmeub.com/icons/png/cd_audio_cd-4.png" width="16"> 95 Music</span>
             <span class="pin-action" onclick="pinApp(event, 'music', 'https://win98icons.alexmeub.com/icons/png/cd_audio_cd-4.png', '95 Music')">Pin</span>
         </div>
-        <div class="menu-item" onclick="openApp('mines', 'Minesweeper', 'https://win98icons.alexmeub.com/icons/png/minesweeper_installed-0.png')">
-            <span><img src="https://win98icons.alexmeub.com/icons/png/minesweeper_installed-0.png" width="16"> Minesweeper</span>
-            <span class="pin-action" onclick="pinApp(event, 'mines', 'https://win98icons.alexmeub.com/icons/png/minesweeper_installed-0.png', 'Minesweeper')">Pin</span>
-        </div>
         <div class="menu-item" onclick="openApp('notepad', 'Notepad', 'https://win98icons.alexmeub.com/icons/png/notepad-0.png')">
             <span><img src="https://win98icons.alexmeub.com/icons/png/notepad-0.png" width="16"> Notepad</span>
             <span class="pin-action" onclick="pinApp(event, 'notepad', 'https://win98icons.alexmeub.com/icons/png/notepad-0.png', 'Notepad')">Pin</span>
+        </div>
+        <div class="menu-item" onclick="openApp('calc', 'Calculator', 'https://win98icons.alexmeub.com/icons/png/calculator-0.png')">
+            <span><img src="https://win98icons.alexmeub.com/icons/png/calculator-0.png" width="16"> Calculator</span>
+            <span class="pin-action" onclick="pinApp(event, 'calc', 'https://win98icons.alexmeub.com/icons/png/calculator-0.png', 'Calculator')">Pin</span>
         </div>
         <div style="height:1px; background:gray; margin:4px 0;"></div>
         <div class="menu-item" onclick="location.reload()"><img src="https://win98icons.alexmeub.com/icons/png/shut_down_normal-4.png" width="16"> Shut Down...</div>
@@ -137,8 +142,8 @@
         <div class="window-controls"><button onclick="closeApp('mines')">X</button></div>
     </div>
     <div class="content-frame" style="background: var(--win-grey); padding: 10px; align-items: center; justify-content: center;">
-        <div id="mine-grid"></div>
-        <button onclick="initMinesweeper()" style="margin-top: 10px; width: 60px;">Reset</button>
+        <div id="mine-grid" oncontextmenu="return false;"></div>
+        <button onclick="initMinesweeper()" style="margin-top: 10px; width: 60px; height: 20px; cursor: pointer;">Reset</button>
     </div>
 </div>
 
@@ -187,7 +192,7 @@
 
 <div class="window" id="win-secret" style="width: 300px; height: 150px; top: 200px; left: 200px;">
     <div class="title-bar" onmousedown="dragStart(event, 'win-secret')">
-        <span style="color:#0f0;">C:\WINDOWS\SYSTEM32\CMD.EXE</span>
+        <span style="color:#0f0;">C:\95\SYSTEM32\CMD.EXE</span>
         <div class="window-controls"><button onclick="closeApp('secret')">X</button></div>
     </div>
     <div class="content-frame" style="background:#000; padding:5px;">
@@ -376,42 +381,72 @@
         }
     }
 
-    // Minesweeper Game
+    // Minesweeper Logic
+    let minesGrid = [];
     function initMinesweeper() {
-        const grid = document.getElementById('mine-grid');
-        grid.innerHTML = '';
-        let cells = [];
+        const gridEl = document.getElementById('mine-grid');
+        gridEl.innerHTML = '';
+        minesGrid = [];
         for(let i=0; i<100; i++) {
             let c = document.createElement('div');
             c.className = 'cell';
             c.dataset.index = i;
-            c.dataset.mine = Math.random() < 0.1;
-            c.onclick = () => revealCell(c, cells);
-            grid.appendChild(c);
-            cells.push(c);
+            c.dataset.mine = Math.random() < 0.12; 
+            c.onmousedown = (e) => {
+                if(e.button === 0) revealCell(c);
+                if(e.button === 2) c.classList.toggle('flagged');
+            };
+            gridEl.appendChild(c);
+            minesGrid.push(c);
         }
     }
-    function revealCell(c, cells) {
-        if(c.classList.contains('revealed')) return;
+
+    function revealCell(c) {
+        if(c.classList.contains('revealed') || c.classList.contains('flagged')) return;
         c.classList.add('revealed');
+        
         if(c.dataset.mine === 'true') {
             c.classList.add('mine');
             c.innerText = '💣';
-            alert('Game Over');
-            initMinesweeper();
+            // Visual loss only - user can click Reset
+            minesGrid.forEach(cell => { if(cell.dataset.mine === 'true') cell.classList.add('revealed', 'mine'); cell.innerText = cell.dataset.mine === 'true' ? '💣' : ''; });
+            return;
+        }
+
+        let count = getMineCount(parseInt(c.dataset.index));
+        if(count > 0) {
+            c.innerText = count;
+            const colors = ['', 'blue', 'green', 'red', 'darkblue', 'brown', 'cyan', 'black', 'gray'];
+            c.style.color = colors[count];
         } else {
-            let count = 0;
+            // Google/Classic Logic: Clear surrounding area recursively
             let idx = parseInt(c.dataset.index);
-            let neighbors = [idx-11, idx-10, idx-9, idx-1, idx+1, idx+9, idx+10, idx+11];
-            neighbors.forEach(n => {
-                if(n>=0 && n<100 && cells[n].dataset.mine === 'true') count++;
-            });
-            if(count > 0) {
-                c.innerText = count;
-                const colors = ['', 'blue', 'green', 'red', 'darkblue', 'brown', 'cyan', 'black', 'gray'];
-                c.style.color = colors[count];
+            let row = Math.floor(idx / 10);
+            let col = idx % 10;
+            for(let i=-1; i<=1; i++) {
+                for(let j=-1; j<=1; j++) {
+                    let r = row + i, cl = col + j;
+                    if(r >= 0 && r < 10 && cl >= 0 && cl < 10) {
+                        revealCell(minesGrid[r * 10 + cl]);
+                    }
+                }
             }
         }
+    }
+
+    function getMineCount(idx) {
+        let count = 0;
+        let row = Math.floor(idx / 10);
+        let col = idx % 10;
+        for(let i=-1; i<=1; i++) {
+            for(let j=-1; j<=1; j++) {
+                let r = row + i, cl = col + j;
+                if(r >= 0 && r < 10 && cl >= 0 && cl < 10) {
+                    if(minesGrid[r * 10 + cl].dataset.mine === 'true') count++;
+                }
+            }
+        }
+        return count;
     }
 </script>
 </body>
