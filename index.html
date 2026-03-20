@@ -86,6 +86,12 @@
         #win-secret { background: #000; border-color: #555; }
         #win-secret .title-bar { background: #333; }
         #secret-input { background: #000; color: #0f0; border: none; width: 100%; outline: none; font-family: 'Courier New', monospace; font-size: 12px; }
+
+        /* Minesweeper */
+        #mine-grid { display: grid; grid-template-columns: repeat(10, 20px); grid-template-rows: repeat(10, 20px); gap: 1px; background: var(--win-dark); padding: 1px; border: 2px inset var(--win-white); margin: auto; }
+        .cell { width: 20px; height: 20px; background: var(--win-grey); border: 2px solid; border-color: var(--win-white) var(--win-dark) var(--win-dark) var(--win-white); display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: default; user-select: none; }
+        .cell.revealed { border: 1px solid var(--win-dark); background: #bdbdbd; border-color: var(--win-dark); }
+        .cell.mine { background: red; }
     </style>
 </head>
 <body onclick="hideStartMenu(); hideVolume()">
@@ -97,11 +103,12 @@
     <div class="icon" onclick="openApp('ie', 'Internet Explorer', 'https://win98icons.alexmeub.com/icons/png/msie1-2.png')"><img src="https://win98icons.alexmeub.com/icons/png/msie1-2.png"> Internet Explorer</div>
     <div class="icon" onclick="openApp('notepad', 'Notepad', 'https://win98icons.alexmeub.com/icons/png/notepad-0.png')"><img src="https://win98icons.alexmeub.com/icons/png/notepad-0.png"> Notepad</div>
     <div class="icon" onclick="openApp('calc', 'Calculator', 'https://win98icons.alexmeub.com/icons/png/calculator-0.png')"><img src="https://win98icons.alexmeub.com/icons/png/calculator-0.png"> Calculator</div>
+    <div class="icon" onclick="openApp('mines', 'Minesweeper', 'https://win98icons.alexmeub.com/icons/png/minesweeper_installed-0.png')"><img src="https://win98icons.alexmeub.com/icons/png/minesweeper_installed-0.png"> Minesweeper</div>
     <div class="icon" onclick="openApp('music', '95 Music', 'https://win98icons.alexmeub.com/icons/png/cd_audio_cd-4.png')"><img src="https://images.dwncdn.net/images/t_app-icon-l/p/6598e7df-7cd1-4163-8d6f-69d8d8978cbd/3589763149/2141_4-78370130-imgingest-4910938650338722334.png"> 95 Music</div>
 </div>
 
 <div class="start-menu" id="start-menu" onclick="event.stopPropagation()">
-    <div class="start-sidebar">Windows 95</div>
+    <div class="start-sidebar">95 OS</div>
     <div class="menu-items">
         <div class="menu-item" onclick="openApp('ie', 'Internet Explorer', 'https://win98icons.alexmeub.com/icons/png/msie1-2.png')">
             <span><img src="https://win98icons.alexmeub.com/icons/png/msie1-2.png" width="16"> Internet Explorer</span>
@@ -111,16 +118,27 @@
             <span><img src="https://win98icons.alexmeub.com/icons/png/cd_audio_cd-4.png" width="16"> 95 Music</span>
             <span class="pin-action" onclick="pinApp(event, 'music', 'https://win98icons.alexmeub.com/icons/png/cd_audio_cd-4.png', '95 Music')">Pin</span>
         </div>
+        <div class="menu-item" onclick="openApp('mines', 'Minesweeper', 'https://win98icons.alexmeub.com/icons/png/minesweeper_installed-0.png')">
+            <span><img src="https://win98icons.alexmeub.com/icons/png/minesweeper_installed-0.png" width="16"> Minesweeper</span>
+            <span class="pin-action" onclick="pinApp(event, 'mines', 'https://win98icons.alexmeub.com/icons/png/minesweeper_installed-0.png', 'Minesweeper')">Pin</span>
+        </div>
         <div class="menu-item" onclick="openApp('notepad', 'Notepad', 'https://win98icons.alexmeub.com/icons/png/notepad-0.png')">
             <span><img src="https://win98icons.alexmeub.com/icons/png/notepad-0.png" width="16"> Notepad</span>
             <span class="pin-action" onclick="pinApp(event, 'notepad', 'https://win98icons.alexmeub.com/icons/png/notepad-0.png', 'Notepad')">Pin</span>
         </div>
-        <div class="menu-item" onclick="openApp('calc', 'Calculator', 'https://win98icons.alexmeub.com/icons/png/calculator-0.png')">
-            <span><img src="https://win98icons.alexmeub.com/icons/png/calculator-0.png" width="16"> Calculator</span>
-            <span class="pin-action" onclick="pinApp(event, 'calc', 'https://win98icons.alexmeub.com/icons/png/calculator-0.png', 'Calculator')">Pin</span>
-        </div>
         <div style="height:1px; background:gray; margin:4px 0;"></div>
         <div class="menu-item" onclick="location.reload()"><img src="https://win98icons.alexmeub.com/icons/png/shut_down_normal-4.png" width="16"> Shut Down...</div>
+    </div>
+</div>
+
+<div class="window" id="win-mines" style="width: 226px; height: 280px; top: 100px; left: 400px;">
+    <div class="title-bar" onmousedown="dragStart(event, 'win-mines')">
+        <span>Minesweeper</span>
+        <div class="window-controls"><button onclick="closeApp('mines')">X</button></div>
+    </div>
+    <div class="content-frame" style="background: var(--win-grey); padding: 10px; align-items: center; justify-content: center;">
+        <div id="mine-grid"></div>
+        <button onclick="initMinesweeper()" style="margin-top: 10px; width: 60px;">Reset</button>
     </div>
 </div>
 
@@ -173,7 +191,7 @@
         <div class="window-controls"><button onclick="closeApp('secret')">X</button></div>
     </div>
     <div class="content-frame" style="background:#000; padding:5px;">
-        <div style="color:#0f0; margin-bottom:5px;">Microsoft(R) Windows 95<br>(C)Copyright Microsoft Corp 1981-1995.</div>
+        <div style="color:#0f0; margin-bottom:5px;">(secret menu) 95 OS<br>(S) this is a secret menu .</div>
         <div style="display:flex; color:#0f0;">
             <span>C:\></span><input type="text" id="secret-input" onkeydown="handleSecretCommand(event)">
         </div>
@@ -238,6 +256,7 @@
             if(id !== 'secret') addToTaskbar(id, name, icon);
             openWindows[id] = true;
             if(id === 'ie') resetIE();
+            if(id === 'mines') initMinesweeper();
         }
         hideStartMenu();
     }
@@ -354,6 +373,44 @@
                 document.getElementById('ander-audio').play();
             }
             input.value = '';
+        }
+    }
+
+    // Minesweeper Game
+    function initMinesweeper() {
+        const grid = document.getElementById('mine-grid');
+        grid.innerHTML = '';
+        let cells = [];
+        for(let i=0; i<100; i++) {
+            let c = document.createElement('div');
+            c.className = 'cell';
+            c.dataset.index = i;
+            c.dataset.mine = Math.random() < 0.1;
+            c.onclick = () => revealCell(c, cells);
+            grid.appendChild(c);
+            cells.push(c);
+        }
+    }
+    function revealCell(c, cells) {
+        if(c.classList.contains('revealed')) return;
+        c.classList.add('revealed');
+        if(c.dataset.mine === 'true') {
+            c.classList.add('mine');
+            c.innerText = '💣';
+            alert('Game Over');
+            initMinesweeper();
+        } else {
+            let count = 0;
+            let idx = parseInt(c.dataset.index);
+            let neighbors = [idx-11, idx-10, idx-9, idx-1, idx+1, idx+9, idx+10, idx+11];
+            neighbors.forEach(n => {
+                if(n>=0 && n<100 && cells[n].dataset.mine === 'true') count++;
+            });
+            if(count > 0) {
+                c.innerText = count;
+                const colors = ['', 'blue', 'green', 'red', 'darkblue', 'brown', 'cyan', 'black', 'gray'];
+                c.style.color = colors[count];
+            }
         }
     }
 </script>
